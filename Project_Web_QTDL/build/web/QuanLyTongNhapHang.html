@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script> <!-- Thêm plugin -->
+    <style>
+        /* CSS trực tiếp ở đây */
+        body {
+            font-family: "K2D", sans-serif;
+            background-color: #f4f4f9;
+            margin: 0; /* Đặt margin bằng 0 để xóa khoảng cách mặc định */
+            padding: 0; /* Đặt padding bằng 0 để xóa khoảng cách mặc định */
+            padding-left: 10px;
+        }
+        #control {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%; /* Chiều rộng đầy đủ */
+        }
+        #nameweb {
+            display: flex;
+            justify-content: center; /* Căn giữa theo chiều ngang */
+            align-items: center; /* Căn giữa theo chiều dọc */
+            height: 70px;
+            width: 100%; /* Chiều rộng đầy đủ */
+        }
+        #nameweb p {
+            font-size: 50px;
+            font-weight: bold;
+        }
+        #contentweb {
+            display: grid;
+            grid-template-columns: 15% 85%; 
+            width: 100%; /* Chiều rộng đầy đủ */
+        }
+        #revenue_navigation_bar {
+            height: 50px;
+            background-color: #ddd;
+            width: 100%; /* Chiều rộng đầy đủ */
+        }
+        #navigation_bar {
+            display: flex;
+            flex-direction: column; /* Hiển thị các liên kết theo chiều dọc */
+            width: 100%; /* Chiều rộng đầy đủ */
+            background-color: #e2e2e2;
+            align-items: center; /* Căn giữa theo chiều dọc */
+            height: 100%;
+        }
+        #navigation_bar a {
+            padding: 30px 0; /* Padding trên và dưới */
+            text-decoration: none;
+            font-size: 24px;
+            color: black;
+        }
+        #revenue_navigation_bar {
+            display: flex;
+            justify-content: space-evenly; /* Căn giữa theo chiều ngang */
+            align-items: center; /* Căn giữa theo chiều dọc */
+            width: 100%; /* Chiều rộng đầy đủ */
+        }
+        #revenue_navigation_bar a{
+            text-decoration: none;
+            font-size: 24px;
+            color: black;
+        }
+        #navigation_bar a:hover, #revenue_navigation_bar a:hover {
+            color: #ff0000; /* Đổi màu chữ khi di chuột qua */
+        }
+        #chart {
+            display: grid;
+            grid-template-rows: 50% 50%; 
+            width: 100%; /* Chiều rộng đầy đủ */
+        }
+        #chart_1, #chart_2 {
+            display: grid;
+            grid-template-columns: 50% 50%; 
+        }
+        #chart_1 div,  #chart_2 div {
+            justify-items: center;
+        }
+        #chart canvas {
+            border: 1px solid #ddd;
+        }
+        #avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="control">
+        <div id="nameweb">
+            <p>Computer Store</p>
+        </div>
+        <div id="contentweb">
+            <div id="navigation_bar">
+                <img id="avatar" src="https://no1computer.vn/upload_images/images/products/Laptop/HP/HP%20Victus/HP%20Victus%2015%20i7%202022/hp-victus-15-h14.jpg" alt="Avatar">
+                <p style="margin-left: 10px; color: #ff1616; margin-top: -10px;font-size: 16px;">Computer Store System</p>
+                    <a style="padding: -10px 0;" href="Insert">Cập nhập dữ liệu</a>
+                    <a href="HienThiThietBiServlet">Thống kê dữ liệu</a>
+                    <a href="ThongKe">Quản lý kho</a>
+                    <a href="XuatHoaDon">Xuất hóa đơn</a>
+            </div>
+            <div id="contentright">
+                <div id="revenue_navigation_bar">
+                    <a href="QuanLyTong">Doanh thu</a>
+                    <a href="NhapHangTong">Nhập hàng</a>
+                    <a href="LoiNhuanTong">Lợi nhuận</a>
+                    <a href="TonKho">Tồn kho</a>
+                </div>
+                <div id="chart">
+                    <div id="chart_1">
+                        <div>
+                            <h2>Biểu đồ nhập hàng theo tháng trong năm</h2>
+                            <canvas id="QLDT_TT" width="400" height="200"></canvas>
+                        </div>
+                        <div>
+                            <h2>Biểu đồ nhập hàng theo nhà cung cấp</h2>
+                            <canvas id="QLDT_30NGN" width="400" height="200"></canvas>
+                        </div>
+                    </div>
+                    <div id="chart_2">
+                        <div>
+                            <h2>Biểu đồ nhập hàng các sản phẩm trong ngày</h2>
+                            <canvas id="QLDT_SPTN" width="400" height="200"></canvas>
+                        </div>
+                        <div>
+                           
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Dữ liệu sẽ được chèn vào đây bởi Servlet -->
+    <script>
+        const ctx1 = document.getElementById('QLDT_TT').getContext('2d');
+        const revenueLineChart = new Chart(ctx1, {
+            type: 'line',
+            data: {
+                labels: month, // Dữ liệu tháng từ Servlet
+                datasets: [{
+                    label: 'Doanh Thu Theo Tháng Trong Năm (VND)',
+                    data: revenues, // Dữ liệu doanh thu từ Servlet
+                    backgroundColor: 'rgb(255, 182, 193,0.2)',  // Màu nền
+                    borderColor: 'rgba(255,0,0, 1)',  // Màu đường
+                    borderWidth: 2,
+                    pointRadius: 4,
+                    fill: true // Tô màu từ đường đến trục X
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    datalabels: {
+                        anchor: 'end', // Chèn nhãn vào cuối mỗi điểm
+                        align: 'top', // Căn giữa nhãn lên phía trên
+                        color: 'black', // Màu chữ
+                        font: {
+                            weight: 'bold'
+                        },
+                        formatter: (value) => value.toLocaleString() // Hiển thị số
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Doanh Thu (VND)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Tháng'
+                        }
+                    }
+                }
+            }
+        });
+
+        const ctx2 = document.getElementById('QLDT_30NGN').getContext('2d');
+        const revenueLineChart2 = new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: TenNhaCungCap, // Dữ liệu tháng từ Servlet
+                datasets: [{
+                    label: 'Nhập Hàng (VND)',
+                    data: TongTienNhap, // Dữ liệu doanh thu từ Servlet
+                    backgroundColor: 'rgba(0, 123, 255, 0.2)', // Màu xanh nước biển đậm với độ trong suốt 60%
+                    borderColor: 'rgba(0, 123, 255, 1)', // Màu xanh nước biển đậm
+                    borderWidth: 2,
+                    pointRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    datalabels: {
+                        anchor: 'end', // Chèn nhãn vào cuối mỗi điểm
+                        align: 'top', // Căn giữa nhãn lên phía trên
+                        color: 'black', // Màu chữ
+                        font: {
+                            weight: 'bold'
+                        },
+                        formatter: (value) => value.toLocaleString() // Hiển thị số
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Doanh Thu (VND)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Ngày'
+                        }
+                    }
+                }
+            }
+        });
+
+        const ctx3 = document.getElementById('QLDT_SPTN').getContext('2d');
+        const revenuePieChart3 = new Chart(ctx3, {
+            type: 'line',
+            data: {
+                labels: tenThietBi, // Biến tenThietBi từ Servlet
+                datasets: [{
+                    label: 'Doanh Thu Theo Sản Phẩm (VND)',
+                    data: TongNhapHang, // Biến doanhThu từ Servlet
+                    backgroundColor: 'rgba(255, 255, 0, 0.2)',  // Màu trắng với độ trong suốt 100%
+                    borderColor: 'rgba(255, 140, 0, 1)',  // Màu đen với độ trong suốt 100%
+                    borderWidth: 2, // Độ dày của đường
+                    pointRadius: 4, // Kích thước của các điểm dữ liệu
+                    fill: true // Tô màu từ đường đến trục X
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    datalabels: {
+                        anchor: 'end', // Chèn nhãn vào cuối mỗi điểm
+                        align: 'top', // Căn giữa nhãn lên phía trên
+                        color: 'black', // Màu chữ
+                        font: {
+                            weight: 'bold'
+                        },
+                        formatter: (value) => value.toLocaleString() // Hiển thị số
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Doanh Thu (VND)' // Tên trục y
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Sản Phẩm' // Tên trục x
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

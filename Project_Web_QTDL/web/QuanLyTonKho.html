@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excel-like Interface</title>
+    
+    <!-- Handsontable và Chart.js -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable@11.0.0/dist/handsontable.full.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/handsontable@11.0.0/dist/handsontable.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+
+    <style>
+        /* CSS trực tiếp ở đây */
+        body {
+            font-family: "K2D", sans-serif;
+            background-color: #f4f4f9;
+            margin: 0; /* Đặt margin bằng 0 để xóa khoảng cách mặc định */
+            padding: 0; /* Đặt padding bằng 0 để xóa khoảng cách mặc định */
+            padding-left: 10px;
+        }
+        #control {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%; /* Chiều rộng đầy đủ */
+        }
+        #nameweb {
+            display: flex;
+            justify-content: center; /* Căn giữa theo chiều ngang */
+            align-items: center; /* Căn giữa theo chiều dọc */
+            height: 70px;
+            width: 100%; /* Chiều rộng đầy đủ */
+        }
+        #nameweb p {
+            font-size: 50px;
+            font-weight: bold;
+        }
+        #contentweb {
+            display: grid;
+            grid-template-columns: 15% 85%; 
+            width: 100%; /* Chiều rộng đầy đủ */
+        }
+        #revenue_navigation_bar {
+            height: 50px;
+            background-color: #ddd;
+            width: 100%; /* Chiều rộng đầy đủ */
+        }
+        #navigation_bar {
+            display: flex;
+            flex-direction: column; /* Hiển thị các liên kết theo chiều dọc */
+            width: 100%; /* Chiều rộng đầy đủ */
+            background-color: #e2e2e2;
+            align-items: center; /* Căn giữa theo chiều dọc */
+            height: 100%;
+        }
+        #navigation_bar a {
+            padding: 30px 0; /* Padding trên và dưới */
+            text-decoration: none;
+            font-size: 24px;
+            color: black;
+        }
+        #revenue_navigation_bar {
+            display: flex;
+            justify-content: space-evenly; /* Căn giữa theo chiều ngang */
+            align-items: center; /* Căn giữa theo chiều dọc */
+            width: 100%; /* Chiều rộng đầy đủ */
+        }
+        #revenue_navigation_bar a{
+            text-decoration: none;
+            font-size: 24px;
+            color: black;
+        }
+        #navigation_bar a:hover, #revenue_navigation_bar a:hover {
+            color: #ff0000; /* Đổi màu chữ khi di chuột qua */
+        }
+        #chart {
+            display: grid;
+            grid-template-columns: 70.5% 29.5%; 
+        }
+        #chart1 h2{
+            padding-left: 170px;
+        }
+        #chart2 h2{
+            font-size: 18px;
+            padding-left: 30px;
+        }
+        #chart canvas {
+            border: 1px solid #ddd;
+        }
+        #excelTable {
+        width: 100%;
+        height: 400px; /* Đặt chiều cao cố định, điều chỉnh tùy nhu cầu */
+        overflow: hidden;
+        }
+        #avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="control">
+        <div id="nameweb">
+            <p>Computer Store</p>
+        </div>
+        <div id="contentweb">
+            <div id="navigation_bar">
+                <img id="avatar" src="https://no1computer.vn/upload_images/images/products/Laptop/HP/HP%20Victus/HP%20Victus%2015%20i7%202022/hp-victus-15-h14.jpg" alt="Avatar">
+                <p style="margin-left: 10px; color: #ff1616; margin-top: -10px;font-size: 16px;">Computer Store System</p>
+                    <a style="padding: -10px 0;" href="Insert">Cập nhập dữ liệu</a>
+                    <a href="HienThiThietBiServlet">Thống kê dữ liệu</a>
+                    <a href="ThongKe">Quản lý kho</a>
+                    <a href="XuatHoaDon">Xuất hóa đơn</a>
+            </div>
+            <div id="contentright">
+                <div id="revenue_navigation_bar">
+                    <a href="QuanLyTong">Doanh thu</a>
+                    <a href="NhapHangTong">Nhập hàng</a>
+                    <a href="LoiNhuanTong">Lợi nhuận</a>
+                    <a href="TonKho">Tồn kho</a>
+                </div>
+                <div id="chart">
+                    <div id="chart1">
+                        <h2>Bảng chi tiết các sản phẩm trong kho</h2>
+                        <div id="excelTable"></div>
+                    </div>
+                    <div id="chart2">
+                        <div>
+                            <h2>Tỷ lệ tồn kho mỗi sản phẩm</h2>
+                            <canvas id="myPieChart" width="400" height="400"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const container = document.getElementById("excelTable");
+
+            // Dữ liệu sẽ được chèn vào đây bởi Servlet
+            // Kiểm tra dữ liệu với console.log
+            console.log(data);
+            // Khởi tạo Handsontable
+            const hot = new Handsontable(container, {
+                data: data,
+                colHeaders: ["Mã Thiết Bị", "Tên Thiết Bị", "Số Lượng Nhập", "Số Lượng Xuất", "Số Lượng Tồn"],
+                rowHeaders: true,
+                filters: true,
+                dropdownMenu: true,
+                columnSorting: true,
+                licenseKey: "non-commercial-and-evaluation"
+            });
+
+            // Tính toán tỷ lệ phần trăm
+            const calculatePercentages = () => {
+                const totalEntries = data.reduce((sum, row) => sum + row[2], 0); // Tổng Số Lượng Nhập
+                return data.map(row => ({
+                    label: row[1],
+                    percentage: parseFloat(((row[2] / totalEntries) * 100).toFixed(2))
+                }));
+            };
+
+            const chartData = calculatePercentages();
+            const labels = chartData.map(item => item.label);
+            const percentages = chartData.map(item => item.percentage);
+
+            // Vẽ biểu đồ tròn
+            const ctx = document.getElementById('myPieChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Tỷ lệ phần trăm',
+                        data: percentages,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.6)', // đỏ hồng
+                            'rgba(54, 162, 235, 0.6)', // xanh dương
+                            'rgba(255, 206, 86, 0.6)', // vàng
+                            'rgba(75, 192, 50, 0.6)', // xanh ngọc
+                            'rgba(153, 102, 255, 0.6)', // tím
+                            'rgba(255, 159, 64, 0.6)', // cam
+                            'rgba(231, 76, 60, 0.6)', // đỏ tươi
+                            'rgba(46, 204, 113, 0.6)', // xanh lá
+                            'rgba(52, 152, 219, 0.6)', // xanh biển đậm
+                            'rgba(243, 156, 18, 0.6)', // vàng cam
+                            'rgba(41, 128, 185, 0.6)', // xanh trời đậm
+                            'rgba(22, 160, 133, 0.6)', // xanh lá cây đậm
+                            'rgba(211, 84, 0, 0.6)',   // cam đậm
+                            'rgba(142, 68, 173, 0.6)', // tím đậm
+                            'rgba(204, 204, 204, 0.6)' // xám nhạt
+                        ],
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.label}: ${context.raw}%`;
+                                }
+                            }
+                        },
+                        legend: {
+                            labels: {
+                                font: {
+                                    size: 12 // Điều chỉnh kích thước font của chú thích (legend)
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

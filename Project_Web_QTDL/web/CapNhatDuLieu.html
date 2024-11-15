@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ComputerStore</title>
+    <script src='https://cdn.jsdelivr.net/npm/chart.js'></script>
+    <script src='https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels'></script>
+    <style>
+        /* CSS trực tiếp ở đây */
+        body {
+            font-family: "K2D", sans-serif;
+            background-color: #f4f4f9;
+            margin: 0; /* Đặt margin bằng 0 để xóa khoảng cách mặc định */
+            padding: 0; /* Đặt padding bằng 0 để xóa khoảng cách mặc định */
+            padding-left: 10px;
+        }
+        #control {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%; /* Chiều rộng đầy đủ */
+        }
+        #nameweb {
+            display: flex;
+            justify-content: center; /* Căn giữa theo chiều ngang */
+            align-items: center; /* Căn giữa theo chiều dọc */
+            height: 70px;
+            width: 100%; /* Chiều rộng đầy đủ */
+        }
+        #nameweb p {
+            font-size: 50px;
+            font-weight: bold;
+        }
+        #contentweb {
+            display: grid;
+            grid-template-columns: 15% 85%; 
+            width: 100%; /* Chiều rộng đầy đủ */
+            height: 100%;
+        }
+        #contentweb_1{
+            width: 100%; /* Chiều rộng đầy đủ */
+            height: 100%;
+            background-color: #e2e2e2;
+        }
+        #revenue_navigation_bar {
+            height: 50px;
+            background-color: #ddd;
+            width: 100%; /* Chiều rộng đầy đủ */
+        }
+        #avatar {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        margin-left: 20px;
+        margin-top: 20px;
+    }
+    #navigation_bar{
+        width: 100%;
+        background-color: #e2e2e2;
+        height: 550px;
+    }
+    #navigation_bar div {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: -30px;
+    }
+
+    #navigation_bar div a {
+        padding: 30px 0;
+        text-decoration: none;
+        font-size: 24px;
+        color: black;
+    }
+
+    #navigation_bar a:hover {
+        color: #ff0000;
+    }
+        #revenue_navigation_bar {
+            display: flex;
+            justify-content: space-evenly; /* Căn giữa theo chiều ngang */
+            align-items: center; /* Căn giữa theo chiều dọc */
+            width: 100%; /* Chiều rộng đầy đủ */
+        }
+        #revenue_navigation_bar a{
+            text-decoration: none;
+            font-size: 24px;
+            color: black;
+        }
+        #revenue_navigation_bar a:hover {
+            color: #ff0000; /* Đổi màu chữ khi di chuột qua */
+        }
+        #chart{
+            display: grid;
+            grid-template-columns: 50% 50%; 
+        }
+        #form{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        } 
+        #resultset {
+            overflow-x: auto; /* Allows horizontal scrolling if the table is too wide */
+            overflow-y: auto; /* Allows vertical scrolling if the table is too tall */
+            width: 40%;  /* Ensures it takes the full width available */
+            max-height: 470px;  /* Set a maximum height for the table container */
+            margin-top: -600px;
+            margin-left: 800px;
+        }
+        table {
+            width: 96%;
+            border-collapse: collapse;
+            padding-left: 10px;/* Optional: for cleaner borders */
+        }
+        th, td {
+            text-align: left;
+        }
+
+        th {
+            position: sticky;  /* Makes the header stick to the top */
+            top: 0;  /* Position the sticky header at the top */
+            z-index: 1;  /* Ensures the header stays above the table content */
+            background-color: #007bff; color: white;
+        }
+     #resultset table {
+        margin-top: 10px;
+        width: 100%;
+        border-collapse: collapse;
+        background-color: #fff;
+    }
+    #resultset th, #resultset td {
+        text-align: left;
+        border: 1px solid #000000;
+    }
+    #resultset th {
+        background-color: #007bff;
+        color: white;
+    }
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+        }
+        input[type="text"], select {
+            width: 95%;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div id="control">
+        <div id="nameweb">
+            <p>Computer Store</p>
+        </div>
+        <div id="contentweb">
+            <div id="contentweb_1">
+                <div id="navigation_bar">
+                    <img id="avatar" src="https://no1computer.vn/upload_images/images/products/Laptop/HP/HP%20Victus/HP%20Victus%2015%20i7%202022/hp-victus-15-h14.jpg" alt="Avatar"> <!-- Thêm hình đại diện vào đây -->
+                    <p style="margin-left: 10px; color: #ff1616; margin-top: -2px;">Computer Store System</p>
+                <div>
+                    <a href="Insert">Cập nhập dữ liệu</a>
+                    <a href="HienThiThietBiServlet">Thống kê dữ liệu</a>
+                    <a href="ThongKe">Quản lý kho</a>
+                    <a href="XuatHoaDon">Xuất hóa đơn</a>
+                </div>
+            </div>
+        </div>
+            <div id="contentright">
+                <div id="revenue_navigation_bar">
+                    <a href="Insert">Insert Data</a>
+                    <a href="Update">Update Data</a>
+                    <a href="Delete">Delete Data</a>
+                </div>
+                <div id="chart">
+                    <div id="form">
+                        <h2>Insert Operation</h2>
+                        <form action="Insert" method="get">
+                            <input type="hidden" name="operation" value="insert">
+                            
+                            <!-- Table Selection Dropdown -->
+                            <label for="tableName">Select Table:</label>
+                            <select name="tableName" id="tableName" required>
+                                <!-- Table options will be dynamically loaded here -->
+                                <option value="NhaSanXuat">NhaSanXuat</option>
+                                <option value="NhaCungCap">NhaCungCap</option>
+                                <option value="LoaiThietBi">LoaiThietBi</option>
+                                <option value="KhachHang">KhachHang</option>
+                                <option value="NhanVien">NhanVien</option>
+                                <option value="PhieuNhap">PhieuNhap</option>
+                                <option value="ThietBi">ThietBi</option>
+                                <option value="ChiTietPhieuNhap">ChiTietPhieuNhap</option>
+                                <option value="PhieuXuat">PhieuXuat</option>
+                                <option value="ChiTietPhieuXuat">ChiTietPhieuXuat</option>
+                            </select><br>
+            
+                            <label for="columns">Columns (comma-separated):</label>
+                            <input type="text" name="columns" id="columns" required><br>
+                            
+                            <label for="values">Values (comma-separated):</label>
+                            <input type="text" name="values" id="values" required><br>
+                            
+                            <button type="submit" name="action" value="filter">Insert</button>
+                        </form>
+                    </div>
+                    <div>
+                        <div id="resultset">
+                            <!-- The table contents will be inserted here by the servlet -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

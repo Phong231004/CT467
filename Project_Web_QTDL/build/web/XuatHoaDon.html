@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excel-like Interface</title>
+    
+    <!-- Handsontable và Chart.js -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable@11.0.0/dist/handsontable.full.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/handsontable@11.0.0/dist/handsontable.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+
+    <style>
+    /* Updated CSS */
+    body {
+        font-family: "K2D", sans-serif;
+        background-color: #f4f4f9;
+        margin: 0;
+        padding: 0 10px;
+    }
+
+    #control {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+    }
+
+    #nameweb {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 70px;
+        width: 100%;
+    }
+
+    #nameweb p {
+        font-size: 50px;
+        font-weight: bold;
+    }
+
+    #contentweb {
+        display: grid;
+        grid-template-columns: 15% 85%;
+        width: 100%;
+    }
+    #avatar {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        margin-left: 20px;
+        margin-top: 20px;
+    }
+    #navigation_bar{
+        width: 100%;
+        background-color: #e2e2e2;
+        height: 550px;
+    }
+    #navigation_bar div {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: -30px;
+    }
+
+    #navigation_bar div a {
+        padding: 30px 0;
+        text-decoration: none;
+        font-size: 24px;
+        color: black;
+    }
+
+    #navigation_bar a:hover {
+        color: #ff0000;
+    }
+
+    #filterForm {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        font-size: 24px;
+        justify-content: center;
+        background-color: #e2e2e2;
+        height: 60px;
+    }
+
+    #filterForm label {
+        margin-right: 10px;
+    }
+
+    #filterForm input, #filterForm select, #filterForm button {
+        padding: 8px;
+        font-size: 18px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    #filterForm button {
+        cursor: pointer;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        transition: background-color 0.3s;
+    }
+
+    #filterForm button:hover {
+        background-color: #45a049;
+    }
+
+    #chart {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        gap: 20px;
+    }
+
+    #invoiceResults {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        background-color: #fff;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        height: 492px;
+        width: 1138px;
+        font-size: 20px;
+    }
+    #invoiceResults {
+        flex-grow: 1;
+        overflow: auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    #invoiceResults table {
+        width: 90%;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        #contentweb {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+</head>
+<body>
+    <div id="control">
+        <div id="nameweb">
+            <p>Computer Store</p>
+        </div>
+        <div id="contentweb">
+            <div id="navigation_bar">
+                <img id="avatar" src="https://no1computer.vn/upload_images/images/products/Laptop/HP/HP%20Victus/HP%20Victus%2015%20i7%202022/hp-victus-15-h14.jpg" alt="Avatar">
+                <p style="margin-left: 10px; color: #ff1616; margin-top: -2px;">Computer Store System</p>
+                <div>
+                    <a href="Insert">Cập nhập dữ liệu</a>
+                    <a href="HienThiThietBiServlet">Thống kê dữ liệu</a>
+                    <a href="ThongKe">Quản lý kho</a>
+                    <a href="XuatHoaDon">Xuất hóa đơn</a>
+                </div>
+            </div>
+            <div id="contentright">
+                <div id="revenue_navigation_bar">
+                    <div>
+                        <form action="XuatHoaDon" method="get" id="filterForm">
+                            <label for="phone_number">Phone Number:</label>
+                            <input type="text" id="phone_number" name="phone_number" required>
+                            
+                            <label for="ngay_xuat">Date:</label>
+                            <input type="date" id="ngay_xuat" name="ngay_xuat">
+                            
+                            <button type="submit" name="action" value="sort">Search</button>
+                            <button type="button" onclick="printInvoice()">Print Invoice</button>
+                        </form>
+                    </div>
+                </div>
+                <div id="chart">
+                    <div id="invoiceResults" class="package-ui">
+                        <!-- The results will be inserted here by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function printInvoice() {
+            var printContents = document.getElementById('invoiceResults').innerHTML;
+            var originalContents = document.body.innerHTML;
+            
+            // Hide everything else
+            document.body.innerHTML = printContents;
+
+            // Print and then restore the page content
+            window.print();
+            document.body.innerHTML = originalContents;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Computer Store</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* CSS trực tiếp ở đây */
+        body {
+            font-family: "K2D", sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 10px;
+        }
+        #control {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+        #nameweb {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 70px;
+            width: 100%;
+        }
+        #nameweb p {
+            font-size: 50px;
+            font-weight: bold;
+        }
+        #contentweb {
+            display: grid;
+            grid-template-columns: 15% 85%; 
+            width: 100%;
+        }
+        #navigation_bar {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #e2e2e2;
+            height: 100%;
+        }
+        #avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin: 20px 0;
+        }
+        #navigation_bar p {
+            color: #ff1616;
+            font-size: 24px;
+            margin-top: -10px;
+            font-weight: bold;
+        }
+        #navigation_bar a {
+            padding: 20px 0;
+            text-decoration: none;
+            font-size: 24px;
+            color: black;
+        }
+        #navigation_bar a:hover {
+            color: #ff0000;
+        }
+        #revenue_navigation_bar {
+            display: flex;
+            justify-content: space-evenly;
+            align-items: center;
+            background-color: #ddd;
+            height: 50px;
+        }
+        #revenue_navigation_bar a {
+            text-decoration: none;
+            font-size: 24px;
+            color: black;
+        }
+        #revenue_navigation_bar a:hover {
+            color: #ff0000;
+        }
+        #chart {
+            display: grid;
+            grid-template-columns: 60% 40%;
+            padding: 10px;
+        }
+        #chart_1, #chart_2 {
+            padding: 10px;
+        }
+        #chart canvas {
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div id="control">
+        <div id="nameweb">
+            <p>Computer Store</p>
+        </div>
+        <div id="contentweb">
+            <div id="navigation_bar">
+                <img id="avatar" src="https://no1computer.vn/upload_images/images/products/Laptop/HP/HP%20Victus/HP%20Victus%2015%20i7%202022/hp-victus-15-h14.jpg" alt="Avatar">
+                <p style="margin-left: 10px; color: #ff1616; margin-top: -10px;font-size: 16px;">Computer Store System</p>
+                    <a style="padding: -10px 0;" href="Insert">Cập nhập dữ liệu</a>
+                    <a href="HienThiThietBiServlet">Thống kê dữ liệu</a>
+                    <a href="ThongKe">Quản lý kho</a>
+                    <a href="XuatHoaDon">Xuất hóa đơn</a>
+            </div>
+            <div id="contentright">
+                <div id="revenue_navigation_bar">
+                    <a href="QuanLyTong">Doanh thu</a>
+                    <a href="NhapHangTong">Nhập hàng</a>
+                    <a href="LoiNhuanTong">Lợi nhuận</a>
+                    <a href="TonKho">Tồn kho</a>
+                </div>
+                <div id="chart">
+                    <div id="chart_1">
+                        <h2>Biểu đồ phân bố khách hàng theo 10 tỉnh cao nhất</h2>
+                        <canvas id="QLDT_KH" width="200" height="150"></canvas>
+                    </div>
+                    <div id="chart_2">
+                        <h2>Biểu đồ doanh thu các sản phẩm</h2>
+                        <canvas id="QLDT_SPTN" width="200" height="100"></canvas>
+                        <h2>Biểu đồ doanh thu theo tháng trong năm</h2>
+                        <canvas id="QLDT_TT" width="200" height="100"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Dữ liệu sẽ được chèn vào đây bởi Servlet -->
+    <script>
+                const ctx1 = document.getElementById('QLDT_TT').getContext('2d');
+        const revenueLineChart = new Chart(ctx1, {
+            type: 'line',
+            data: {
+                labels: monthDoanhThuTheoThang, // Dữ liệu tháng từ Servlet
+                datasets: [{
+                    label: 'Doanh Thu Theo Tháng Trong Năm (VND)',
+                    data: revenuesDoanhThuTheoThang, // Dữ liệu doanh thu từ Servlet
+                    backgroundColor: 'rgba(0, 0, 255, 0.2)',  // Màu nền
+                    borderColor: 'rgba(0, 0, 255, 1)',  // Màu đường
+                    borderWidth: 2,
+                    pointRadius: 4,
+                    fill: true // Tô màu từ đường đến trục X
+                    
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Doanh Thu (VND)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Tháng'
+                        }
+                    }
+                }
+            }
+        });
+        const ctx2 = document.getElementById('QLDT_KH').getContext('2d');
+        const revenuePieChart2 = new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: tenTinh, // Biến tenThietBi từ Servlet
+                datasets: [{
+                    label: 'Số lượng khách (người)',
+                    data: soLuongKhachHang, // Biến doanhThu từ Servlet
+                    backgroundColor: 'rgba(255, 0, 0, 0.5)',  // Màu trắng với độ trong suốt 100%
+                    borderColor: 'rgba(255, 0, 0, 1)',  // Màu đen với độ trong suốt 100%
+                    borderWidth: 2, // Độ dày của đường
+                    pointRadius: 4 // Kích thước của các điểm dữ liệu
+                }]
+            },
+            options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: 'Số lượng (người)' // Tên trục y
+                }
+            },
+            x: {
+                title: {
+                    display: true,
+                    text: 'Tỉnh' // Tên trục x
+                }
+            }
+        }
+    }
+        });
+        const ctx3 = document.getElementById('QLDT_SPTN').getContext('2d');
+        const revenuePieChart3 = new Chart(ctx3, {
+            type: 'bar',
+            data: {
+                labels: tenThietBi, // Biến tenThietBi từ Servlet
+                datasets: [{
+                    label: 'Doanh Thu Theo Sản Phẩm (VND)',
+                    data: doanhThu, // Biến doanhThu từ Servlet
+                    backgroundColor: 'rgba(34, 139, 34, 1)', // Màu xanh lá cây với độ trong suốt 60%
+                    borderColor: 'rgba(34, 139, 34, 1)', // Màu xanh lá cây
+                    borderWidth: 2, // Độ dày của đường
+                    pointRadius: 4 // Kích thước của các điểm dữ liệu
+                }]
+            },
+            options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: 'Doanh Thu (VND)' // Tên trục y
+                }
+            },
+            x: {
+                title: {
+                    display: true,
+                    text: 'Sản Phẩm' // Tên trục x
+                }
+            }
+        }
+    }
+        });
+    </script>
+</body>
+</html>
